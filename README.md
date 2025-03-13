@@ -12,9 +12,12 @@ Here gtnrin5y.default-1427795996109 is the profile name. This will vary from ins
 
 See https://www.forensicfocus.com/articles/firefox-cache-format-and-extraction/ and https://code.google.com/archive/p/firefox-cache-forensics/ for some old info about this. Not clear how it's changed since then.
 
-Where is the C++ code for reading/writing the cache in Firefox located?
+C++ code for reading/writing the cache in Firefox is part of
+[necko](https://wiki.mozilla.org/Networking). The source code 
+appears to be in netwerk/cache2/CacheEntry.cpp, netwerk/cache2/CacheEntry.h
+and related classes.
 
-This is what Gemini thinks is true about the Forefox cache:
+This is what Gemini thinks is true about the Firefox cache:
 
 he Firefox web browser cache is a complex system involving multiple components, and the relevant C++ source code is spread across several directories within the Mozilla codebase. Here's a breakdown of the key areas and files involved, along with some explanations:
 
