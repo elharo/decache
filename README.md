@@ -14,7 +14,7 @@ See https://www.forensicfocus.com/articles/firefox-cache-format-and-extraction/ 
 C++ code for reading/writing the cache in Firefox is part of
 [necko](https://wiki.mozilla.org/Networking). The source code 
 appears to be in netwerk/cache2/CacheEntry.cpp, netwerk/cache2/CacheEntry.h
-and related classes.
+and related classes. [This wiki describes the cache layout and format](https://wiki.mozilla.org/Necko/Cache). 
 
 This is what Gemini thinks is true about the Firefox cache:
 
