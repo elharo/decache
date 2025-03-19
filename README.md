@@ -13,7 +13,7 @@ See https://www.forensicfocus.com/articles/firefox-cache-format-and-extraction/ 
 
 C++ code for reading/writing the cache in Firefox is part of
 [necko](https://wiki.mozilla.org/Networking). The source code 
-appears to be in netwerk/cache2/CacheEntry.cpp, netwerk/cache2/CacheEntry.h
+appears to be in mozilla-unified/netwerk/cache2/CacheEntry.cpp, mozilla-unified/netwerk/cache2/CacheEntry.h
 and related classes. [This wiki describes the cache layout and format](https://wiki.mozilla.org/Necko/Cache). 
 
 This is what Gemini thinks is true about the Firefox cache:
@@ -68,3 +68,14 @@ This is what Gemini thinks is true about the Firefox cache:
 > * Understanding the inner workings of the Firefox cache requires a good understanding of C++, networking, and file system concepts.
 > 
 > By exploring the `netwerk/cache2/` directory and related files, you can gain a deeper understanding of how Firefox manages its web browser cache.
+
+
+This directory seems to be in the vicinity of 200-300 thousand tokens if I were to upload it into Gemini.
+
+
+```
+~$ find mozilla-unified/netwerk/cache2 -type f \( -name "*.txt" -o -name "*.py" -o -name "*.cc" -o -name "*.java" -o -name "*.h" -o -name "*.md" -o -name "*.json" -o -name "*.cpp" -o -name "*.yaml" -o -name "*.idl" -o -name "*.build" \) -print0 | xargs -0 cat | wc -c
+  826728
+```
+
+(826728 is a character count that needs to be divided by 4 to estimate the number of inout tokens.)
