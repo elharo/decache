@@ -2,7 +2,7 @@
 Python 3 library to extract files from browser caches.
 This is in the very earliest stages of experimentation. 
 
-At the momeent, the cache lives somewhere like this:
+At the moment, the cache lives somewhere like this:
 
 $ ls /Users/elharo/Library/Caches/Firefox/Profiles/gtnrin5y.default-1427795996109/cache2
 doomed	entries	index
