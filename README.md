@@ -14,7 +14,7 @@ See https://www.forensicfocus.com/articles/firefox-cache-format-and-extraction/ 
 C++ code for reading/writing the cache in Firefox is part of
 [necko](https://wiki.mozilla.org/Networking). The source code 
 appears to be in mozilla-unified/netwerk/cache2/CacheEntry.cpp, mozilla-unified/netwerk/cache2/CacheEntry.h
-and related classes. [This wiki describes the cache layout and format](https://wiki.mozilla.org/Necko/Cache). 
+and related classes. [The Mozilla wiki describes the cache layout and format](https://wiki.mozilla.org/Necko/Cache). 
 
 This is what Gemini thinks is true about the Firefox cache:
 
@@ -80,7 +80,7 @@ This directory seems to be in the vicinity of 200-300 thousand tokens if I were 
 
 (826728 is a character count that needs to be divided by 4 to estimate the number of input tokens.)
 
-I gave Gemini some more context and used the Geminn 2.0 model and now it tells me:
+I gave Gemini some more context and used the Gemini 2.0 model and now it tells me:
 
 > Okay, this is a great start. I've reviewed the provided GitHub repository and the Necko Cache Wiki page. Based on this information, here's an analysis of the cache format and how you can extract data using a Python program.
 > 
