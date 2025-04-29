@@ -9,7 +9,7 @@ doomed	entries	index
 
 Here gtnrin5y.default-1427795996109 is the profile name. This will vary from install to install, and there can be more than one.
 
-See https://www.forensicfocus.com/articles/firefox-cache-format-and-extraction/ and https://code.google.com/archive/p/firefox-cache-forensics/ for some old info about this. Not clear how it's changed since then.
+See https://github.com/libyal/dtformats/blob/main/documentation/Firefox%20cache%20file%20format.asciidoc https://www.forensicfocus.com/articles/firefox-cache-format-and-extraction/ and https://code.google.com/archive/p/firefox-cache-forensics/ for some old info about this. Not clear how it's changed since then.
 
 C++ code for reading/writing the cache in Firefox is part of
 [necko](https://wiki.mozilla.org/Networking). The source code 
