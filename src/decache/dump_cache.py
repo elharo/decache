@@ -3,6 +3,7 @@ import platform
 import glob
 import sys
 import struct  # For unpacking binary data
+from datetime import datetime
 from typing import LiteralString, Optional
 
 
@@ -64,13 +65,31 @@ def main():
         print("Error: No Firefox cache2 directory found.", file=sys.stderr)
         sys.exit(1)
 
-    cache_map = os.path.join(cache_directory, "index")
-    if not os.path.isfile(cache_map):
-        print(f"Could not locate cache map: {cache_map}", file=sys.stderr)
+    cache_index = os.path.join(cache_directory, "index")
+    if not os.path.isfile(cache_index):
+        print(f"Could not locate cache index: {cache_index}", file=sys.stderr)
         sys.exit(1)
 
-    print(f"Found cache map:")
-    print(f"- {cache_map}")
+    print(f"Found cache index:")
+    print(f"- {cache_index}")
+
+    num_bytes_expected = 16
+    with open(cache_index, "rb") as f:
+        # Read the required number of bytes (16) from the beginning of the file
+        data_bytes = f.read(num_bytes_expected)
+
+        # Ensure we actually read enough bytes
+        if len(data_bytes) < num_bytes_expected:
+            # TODO exception
+            print(f"Error: File '{cache_index}' is too small. "
+                  f"Expected {num_bytes_expected} bytes, but only found {len(data_bytes)}.")
+            sys.exit(1)
+
+        # Unpack the bytes according to the format string
+        # This will return a tuple of 4 integers
+        version, timestamp, is_dirty, kb_written = struct.unpack("<IIII", data_bytes)
+        # format defined in source/netwerk/cache2/CacheIndex.h
+        print(f"version={version}, timestamp={datetime.fromtimestamp(timestamp)}, is_dirty={bool(is_dirty)}, kb_written={kb_written}")
 
 
 if __name__ == "__main__":
