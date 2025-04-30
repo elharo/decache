@@ -73,21 +73,19 @@ def main():
     print(f"Found cache index:")
     print(f"- {cache_index}")
 
-    num_bytes_expected = 16
+    num_header_bytes = 16
     with open(cache_index, "rb") as f:
         # Read the required number of bytes (16) from the beginning of the file
-        data_bytes = f.read(num_bytes_expected)
+        header_bytes = f.read(num_header_bytes)
 
         # Ensure we actually read enough bytes
-        if len(data_bytes) < num_bytes_expected:
+        if len(header_bytes) < num_header_bytes:
             # TODO exception
             print(f"Error: File '{cache_index}' is too small. "
-                  f"Expected {num_bytes_expected} bytes, but only found {len(data_bytes)}.")
+                  f"Expected {num_header_bytes} bytes, but only found {len(header_bytes)}.")
             sys.exit(1)
 
-        # Unpack the bytes according to the format string
-        # This will return a tuple of 4 integers
-        version, timestamp, is_dirty, kb_written = struct.unpack("<IIII", data_bytes)
+        version, timestamp, is_dirty, kb_written = struct.unpack(">IIII", header_bytes)
         # format defined in source/netwerk/cache2/CacheIndex.h
         print(f"version={version}, timestamp={datetime.fromtimestamp(timestamp)}, is_dirty={bool(is_dirty)}, kb_written={kb_written}")
 
