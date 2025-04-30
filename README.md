@@ -23,10 +23,10 @@ Claude Code does a better job than Gemini of analyzing the ctual C++ code. Accor
 >   Format of the Index File:
 > 
 >   1. Header (CacheIndexHeader):
->     * Version (uint32_t)
->     * Timestamp (uint32_t)
->     * Dirty flag (uint32_t)
->     * Amount of data written (uint32_t)
+>      * Version (uint32_t)
+>      * Timestamp (uint32_t)
+>      * Dirty flag (uint32_t)
+>      * Amount of data written (uint32_t)
 >   2. Records (Series of CacheIndexRecord):
 >      * SHA1 hash (20 bytes)
 >      * Frecency (uint32_t)
