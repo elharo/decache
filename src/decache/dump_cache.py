@@ -64,8 +64,13 @@ def main():
         print("Error: No Firefox cache2 directory found.", file=sys.stderr)
         sys.exit(1)
 
-    print(f"Found cache directory:")
-    print(f"- {cache_directory}")
+    cache_map = os.path.join(cache_directory, "index")
+    if not os.path.isfile(cache_map):
+        print(f"Could not locate cache map: {cache_map}", file=sys.stderr)
+        sys.exit(1)
+
+    print(f"Found cache map:")
+    print(f"- {cache_map}")
 
 
 if __name__ == "__main__":
