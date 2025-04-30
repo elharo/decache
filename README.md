@@ -18,7 +18,7 @@ and related classes. [The Mozilla wiki describes the cache layout and format](ht
 In particular there seems to have been a very big move from cache to cache2 in the last few years that invalidates most of this.
 E.g. there's no more _CACHE_MAP_ file. Instead there's an index file. [Bugs for necko caching](https://bugzilla.mozilla.org/buglist.cgi?product=Core&component=Networking%3A%20Cache&resolution=---&list_id=17534843) are in bugzilla.
 
-Claude Code does a better job than Gemini of analyzing the ctual C++ code. According to Claude, which tentatively looks correct:
+Claude Code does a better job than Gemini of analyzing the actual C++ code. According to Claude, which tentatively looks correct:
 
 >   Format of the Index File:
 > 
