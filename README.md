@@ -18,6 +18,27 @@ and related classes. [The Mozilla wiki describes the cache layout and format](ht
 In particular there seems to have been a very big move from cache to cache2 in the last few years that invalidates most of this.
 E.g. there's no more _CACHE_MAP_ file. Instead there's an index file. [Bugs for necko caching](https://bugzilla.mozilla.org/buglist.cgi?product=Core&component=Networking%3A%20Cache&resolution=---&list_id=17534843) are in bugzilla.
 
+Claude Code does a better job than Gemini of analyzing the ctual C++ code. According to Claude, which tentatively looks correct:
+
+>   Format of the Index File:
+> 
+>   1. Header (CacheIndexHeader):
+>     - Version (uint32_t)
+>     - Timestamp (uint32_t)
+>     - Dirty flag (uint32_t)
+>     - Amount of data written (uint32_t)
+>   2. Records (Series of CacheIndexRecord):
+>     - SHA1 hash (20 bytes)
+>     - Frecency (uint32_t)
+>     - Origin attributes hash (uint64_t)
+>     - On-start time (uint16_t)
+>     - On-stop time (uint16_t)
+>     - Content type (uint8_t)
+>     - Flags (uint32_t) - contains file size and status flags
+>   3. Hash (uint32_t):
+>     - A checksum of the file contents for integrity verification
+
+
 This is what Gemini thinks is true about the Firefox cache:
 
 
