@@ -23,20 +23,20 @@ Claude Code does a better job than Gemini of analyzing the ctual C++ code. Accor
 >   Format of the Index File:
 > 
 >   1. Header (CacheIndexHeader):
->     - Version (uint32_t)
->     - Timestamp (uint32_t)
->     - Dirty flag (uint32_t)
->     - Amount of data written (uint32_t)
+>     * Version (uint32_t)
+>     * Timestamp (uint32_t)
+>     * Dirty flag (uint32_t)
+>     * Amount of data written (uint32_t)
 >   2. Records (Series of CacheIndexRecord):
->     - SHA1 hash (20 bytes)
->     - Frecency (uint32_t)
->     - Origin attributes hash (uint64_t)
->     - On-start time (uint16_t)
->     - On-stop time (uint16_t)
->     - Content type (uint8_t)
->     - Flags (uint32_t) - contains file size and status flags
+>      * SHA1 hash (20 bytes)
+>      * Frecency (uint32_t)
+>      * Origin attributes hash (uint64_t)
+>      * On-start time (uint16_t)
+>      * On-stop time (uint16_t)
+>      * Content type (uint8_t)
+>      * Flags (uint32_t) - contains file size and status flags
 >   3. Hash (uint32_t):
->     - A checksum of the file contents for integrity verification
+>      * A checksum of the file contents for integrity verification
 
 
 This is what Gemini thinks is true about the Firefox cache:
