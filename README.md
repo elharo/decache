@@ -14,7 +14,9 @@ See https://github.com/libyal/dtformats/blob/main/documentation/Firefox%20cache%
 C++ code for reading/writing the cache in Firefox is part of
 [necko](https://wiki.mozilla.org/Networking). The source code 
 appears to be in mozilla-unified/netwerk/cache2/CacheEntry.cpp, mozilla-unified/netwerk/cache2/CacheEntry.h
-and related classes. [The Mozilla wiki describes the cache layout and format](https://wiki.mozilla.org/Necko/Cache). 
+and related classes. [The Mozilla wiki describes the cache layout and format](https://wiki.mozilla.org/Necko/Cache) but seems very out of date.
+In particular there seems to have been a very big move from cache to cache2 in the last few years that invalidates most of this.
+E.g. there's no more _CACHE_MAP_ file. Instead there's an index file. [Bugs for necko caching](https://bugzilla.mozilla.org/buglist.cgi?product=Core&component=Networking%3A%20Cache&resolution=---&list_id=17534843) are in bugzilla.
 
 This is what Gemini thinks is true about the Firefox cache:
 
