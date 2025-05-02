@@ -7,7 +7,11 @@ from datetime import datetime
 from typing import LiteralString, Optional
 
 
+# "Plan to throw one away. You will anyway." -- Fred Brooks
+# This is the one I plan to throw away.
+
 # TODO use exception instead of return None
+# TODO handle multiple profiles
 def find_firefox_cache_dir() -> Optional[LiteralString]:
     """
     Find Firefox cache2 directories for the current user.
@@ -73,21 +77,64 @@ def main():
     print(f"Found cache index:")
     print(f"- {cache_index}")
 
-    num_header_bytes = 16
+    file_size = os.path.getsize(cache_index)
+    record_size = 20 + 4 + 8 + 2 + 2 + 1 + 4
+    hash_size = 4
+    num_header_bytes = 16  # 4 * sizeof(unit32_t)
+    num_records = (file_size - num_header_bytes - hash_size) // record_size
+
+    if file_size < num_header_bytes + hash_size:
+        # TODO exception
+        print(f"Error: File '{cache_index}' is too small. "
+              f"File too small {file_size}.")
+        sys.exit(1)
+
     with open(cache_index, "rb") as f:
         # Read the required number of bytes (16) from the beginning of the file
         header_bytes = f.read(num_header_bytes)
 
-        # Ensure we actually read enough bytes
-        if len(header_bytes) < num_header_bytes:
-            # TODO exception
-            print(f"Error: File '{cache_index}' is too small. "
-                  f"Expected {num_header_bytes} bytes, but only found {len(header_bytes)}.")
-            sys.exit(1)
-
         version, timestamp, is_dirty, kb_written = struct.unpack(">IIII", header_bytes)
         # format defined in source/netwerk/cache2/CacheIndex.h
-        print(f"version={version}, timestamp={datetime.fromtimestamp(timestamp)}, is_dirty={bool(is_dirty)}, kb_written={kb_written}")
+        print(
+            f"version={version}, timestamp={datetime.fromtimestamp(timestamp)}, is_dirty={bool(is_dirty)}, kb_written={kb_written}")
+
+        """
+          2. Records (Series of CacheIndexRecord):
+            - SHA1 hash (20 bytes)
+            - Frecency (uint32_t)
+            - Origin attributes hash (uint64_t)
+            - On-start time (uint16_t)
+            - On-stop time (uint16_t)
+            - Content type (uint8_t)
+            - Flags (uint32_t) - contains file size and status flags
+        """
+
+        # Read all records
+        records = []
+        for i in range(num_records):
+            # Read each field of the record
+            hash_value = f.read(20)
+            frecency = struct.unpack('>I', f.read(4))[0]
+            origin_attrs_hash = struct.unpack('>Q', f.read(8))[0]
+            on_start_time = struct.unpack('>H', f.read(2))[0]
+            on_stop_time = struct.unpack('>H', f.read(2))[0]
+            content_type = f.read(1)[0]
+            flags = struct.unpack('>I', f.read(4))[0]
+
+            print(content_type)
+            records.append({
+                'hash': hash_value.hex(),
+                'frecency': frecency,
+                'origin_attrs_hash': origin_attrs_hash,
+                'on_start_time': on_start_time,
+                'on_stop_time': on_stop_time,
+                'content_type': content_type,
+                'flags': flags
+            })
+
+        # Read the hash at the end
+        file_hash = struct.unpack('>I', f.read(4))[0]
+
 
 
 if __name__ == "__main__":
