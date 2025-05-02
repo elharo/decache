@@ -60,83 +60,6 @@ def find_firefox_cache_dir() -> Optional[LiteralString]:
 
     return None
 
-
-def main():
-    print("Finding Firefox cache directories...")
-    cache_directory = find_firefox_cache_dir()
-
-    if not cache_directory:
-        print("Error: No Firefox cache2 directory found.", file=sys.stderr)
-        sys.exit(1)
-
-    cache_index = os.path.join(cache_directory, "index")
-    if not os.path.isfile(cache_index):
-        print(f"Could not locate cache index: {cache_index}", file=sys.stderr)
-        sys.exit(1)
-
-    print(f"Found cache index:")
-    print(f"- {cache_index}")
-
-    file_size = os.path.getsize(cache_index)
-    record_size = 20 + 4 + 8 + 2 + 2 + 1 + 4
-    hash_size = 4
-    num_header_bytes = 16  # 4 * sizeof(unit32_t)
-    num_records = (file_size - num_header_bytes - hash_size) // record_size
-
-    if file_size < num_header_bytes + hash_size:
-        # TODO exception
-        print(f"Error: File '{cache_index}' is too small. "
-              f"File too small {file_size}.")
-        sys.exit(1)
-
-    with open(cache_index, "rb") as f:
-        # Read the required number of bytes (16) from the beginning of the file
-        header_bytes = f.read(num_header_bytes)
-
-        version, timestamp, is_dirty, kb_written = struct.unpack(">IIII", header_bytes)
-        # format defined in source/netwerk/cache2/CacheIndex.h
-        print(
-            f"version={version}, timestamp={datetime.fromtimestamp(timestamp)}, is_dirty={bool(is_dirty)}, kb_written={kb_written}")
-
-        """
-          2. Records (Series of CacheIndexRecord):
-            - SHA1 hash (20 bytes)
-            - Frecency (uint32_t)
-            - Origin attributes hash (uint64_t)
-            - On-start time (uint16_t)
-            - On-stop time (uint16_t)
-            - Content type (uint8_t)
-            - Flags (uint32_t) - contains file size and status flags
-        """
-
-        # Read all records
-        records = []
-        for i in range(num_records):
-            # Read each field of the record
-            hash_value = f.read(20)
-            frecency = struct.unpack('>I', f.read(4))[0]
-            origin_attrs_hash = struct.unpack('>Q', f.read(8))[0]
-            on_start_time = struct.unpack('>H', f.read(2))[0]
-            on_stop_time = struct.unpack('>H', f.read(2))[0]
-            content_type = f.read(1)[0]
-            flags = struct.unpack('>I', f.read(4))[0]
-
-            filename = hash_value.hex().upper()
-            filepath = os.path.join(cache_directory, "entries", filename)
-            print(f"{filename} {content_type} {os.path.isfile(filepath)}")
-            records.append({
-                'filename': filename,
-                'frecency': frecency,
-                'origin_attrs_hash': origin_attrs_hash,
-                'on_start_time': on_start_time,
-                'on_stop_time': on_stop_time,
-                'content_type': content_type,
-                'flags': flags
-            })
-
-        # Read the hash at the end
-        file_hash = struct.unpack('>I', f.read(4))[0]
-
     """
     > How do the records in this file map to/locate the actual cached data?
 
@@ -189,6 +112,107 @@ def main():
   manage different types of cached content (JavaScript, images,
   stylesheets, etc.)
   """
+
+
+# TODO type hints
+def read_index(cache_directory):
+    cache_index = os.path.join(cache_directory, "index")
+    if not os.path.isfile(cache_index):
+        print(f"Could not locate cache index: {cache_index}", file=sys.stderr)
+        sys.exit(1)
+    print(f"Found cache index:")
+    print(f"- {cache_index}")
+    file_size = os.path.getsize(cache_index)
+    record_size = 20 + 4 + 8 + 2 + 2 + 1 + 4
+    hash_size = 4
+    num_header_bytes = 16  # 4 * sizeof(unit32_t)
+    num_records = (file_size - num_header_bytes - hash_size) // record_size
+    if file_size < num_header_bytes + hash_size:
+        # TODO exception
+        print(f"Error: File '{cache_index}' is too small. "
+              f"File too small {file_size}.")
+        sys.exit(1)
+    with open(cache_index, "rb") as f:
+        # Read the required number of bytes (16) from the beginning of the file
+        header_bytes = f.read(num_header_bytes)
+
+        version, timestamp, is_dirty, kb_written = struct.unpack(">IIII", header_bytes)
+
+        # TODO if version is not 10 exit with warning
+        # format defined in source/netwerk/cache2/CacheIndex.h
+        print(
+            f"version={version}, timestamp={datetime.fromtimestamp(timestamp)}, is_dirty={bool(is_dirty)}, kb_written={kb_written}")
+
+        # TODO change to constants
+        """
+          1. CONTENT_TYPE_UNKNOWN (0) - Type couldn't be determined
+          2. CONTENT_TYPE_OTHER (1) - Miscellaneous content types
+          3. CONTENT_TYPE_JAVASCRIPT (2) - JavaScript files
+          4. CONTENT_TYPE_IMAGE (3) - Image files (PNG, JPEG, GIF, etc.)
+          5. CONTENT_TYPE_MEDIA (4) - Audio and video files
+          6. CONTENT_TYPE_STYLESHEET (5) - CSS stylesheets
+          7. CONTENT_TYPE_WASM (6) - WebAssembly modules
+        """
+
+        # Read all records
+        # TODO record class
+        records = []
+        for i in range(num_records):
+            # Read each field of the record
+            hash_value = f.read(20)
+            frecency = struct.unpack('>I', f.read(4))[0]
+            origin_attrs_hash = struct.unpack('>Q', f.read(8))[0]
+            on_start_time = struct.unpack('>H', f.read(2))[0]
+            on_stop_time = struct.unpack('>H', f.read(2))[0]
+            content_type = f.read(1)[0]
+            flags = struct.unpack('>I', f.read(4))[0]
+
+            filename = hash_value.hex().upper()
+
+            # TODO introduce a cacheEntry class
+            """
+              2. Records (Series of CacheIndexRecord):
+                - SHA1 hash (20 bytes)
+                - Frecency (uint32_t)
+                - Origin attributes hash (uint64_t)
+                - On-start time (uint16_t)
+                - On-stop time (uint16_t)
+                - Content type (uint8_t)
+                - Flags (uint32_t) - contains file size and status flags
+            """
+            records.append({
+                'filename': filename,
+                'frecency': frecency,
+                'origin_attrs_hash': origin_attrs_hash,
+                'on_start_time': on_start_time,
+                'on_stop_time': on_stop_time,
+                'content_type': content_type,
+                'flags': flags
+            })
+
+        # Read the hash at the end
+        file_hash = struct.unpack('>I', f.read(4))[0]
+
+        return records
+
+
+def extract_image(cache_directory, entry):
+    filepath = os.path.join(cache_directory, "entries", entry['filename'])
+    print(filepath)
+
+
+def main():
+    print("Finding Firefox cache directories...")
+    cache_directory = find_firefox_cache_dir()
+
+    if not cache_directory:
+        print("Error: No Firefox cache2 directory found.", file=sys.stderr)
+        sys.exit(1)
+
+    entries = read_index(cache_directory)
+    for entry in entries:
+        if entry['content_type'] == 3: # image
+            extract_image(cache_directory, entry)
 
 
 if __name__ == "__main__":
