@@ -121,9 +121,11 @@ def main():
             content_type = f.read(1)[0]
             flags = struct.unpack('>I', f.read(4))[0]
 
-            print(content_type)
+            filename = hash_value.hex().upper()
+            filepath = os.path.join(cache_directory, "entries", filename)
+            print(f"{filename} {content_type} {os.path.isfile(filepath)}")
             records.append({
-                'hash': hash_value.hex(),
+                'filename': filename,
                 'frecency': frecency,
                 'origin_attrs_hash': origin_attrs_hash,
                 'on_start_time': on_start_time,
@@ -135,6 +137,58 @@ def main():
         # Read the hash at the end
         file_hash = struct.unpack('>I', f.read(4))[0]
 
+    """
+    > How do the records in this file map to/locate the actual cached data?
+
+  The records in the Firefox cache index file serve as a map to locate the
+  actual cached data stored separately. Here's how the mapping works:
+
+  Cache Record Structure to Actual Data
+
+  1. Hash-Based Filename System:
+    - The most critical field in each record is the mHash (SHA1Sum::Hash),
+  which is a 20-byte SHA-1 hash
+    - This hash directly corresponds to the filename of the actual cached
+  content
+    - The cached data is stored in files named with the hexadecimal
+  representation of this hash
+  2. File Location:
+    - The actual cached data files are stored in the cache2/entries/
+  directory
+    - Example: If a record has a hash value of 1a2b3c4d5e..., the
+  corresponding data file would be at cache2/entries/1a2b3c4d5e...
+  3. Metadata vs. Content:
+    - The index file only contains metadata about the cached items
+  (frequency of use, size, content type, etc.)
+    - It doesn't contain any of the actual cached content - just
+  information to find and manage it
+
+  Process of Retrieving Cached Data
+
+  When Firefox needs to retrieve something from the cache:
+
+  1. It computes the SHA-1 hash of the resource's key (typically its URL)
+  2. It looks up this hash in the cache index to check if it exists and to
+  get metadata
+  3. If found, it retrieves the corresponding file from the entries
+  directory
+  4. Each entry file contains both metadata and the actual cached content
+
+  Additional Details
+
+  - Entry File Structure: Each entry file in the entries directory has its
+  own structure:
+    - A metadata section containing HTTP headers and other information
+    - The actual cached content (HTML, images, JS, etc.)
+  - Optimization: The index provides quick lookup without having to open
+  each individual cached file
+    - Fields like mFrecency help determine which entries to keep when space
+   is needed
+    - mFlags contains information about the entry's state and the file size
+  - Content Types: The mContentType field helps Firefox categorize and
+  manage different types of cached content (JavaScript, images,
+  stylesheets, etc.)
+  """
 
 
 if __name__ == "__main__":
